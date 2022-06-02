@@ -4,11 +4,19 @@ Created June 2, 2022
 
 Created by Elizabeth Miller (millere@umn.edu) 
 
-#### Log into MSI
+### Before starting
+
+This tutorial assumes you have a basic understanding of command line, MSI, and Conda. The following tutorials are recommended in this order:
+
+1. [Introduction to Command Line - Part 1](https://github.com/eam12/Tutorials/blob/660301e784f6f87a49dd4fa0f00609ec66d5ce93/Intro_to_Command_Line/Intro_to_Command_Line.md)
+2. [Introduction Minnesota Supercomputing Institute (MSI)](https://www.msi.umn.edu/tutorials/introduction-minnesota-supercomputing-institute-msi)
+3. [Introduction to Conda](https://github.com/eam12/Tutorials/blob/ca8a9a3a8500b50034bebfac257b329004dcb53f/Intro_to_Conda/Intro_to_Conda.md)
+
+### Log into MSI
 
 How this is done will depend on whether you're using Terminal or PuTTY.
 
-#### Download and install all required software
+### Download and install all required software
 
 We'll use the [sra-tools](https://ncbi.github.com/sra-tools/) (version 2.11.0) commands `prefetch` (with [GNU Parallel](https://www.gnu.org/software/parallel/) to parallelize this step) to download the SRA files and `fasterq-dump` to convert the SRA files to FASTQ files. We'll then use [pigz](https://zlib.net/pigz/) (version 2.6) to compress the resulting FASTQ files. We'll use [Conda](https://docs.conda.io/en/latest/) to install all except for GNU Parallel which is available as an MSI module. 
 
@@ -25,11 +33,11 @@ conda create --name sra-tools --channel bioconda sra-tools
 conda install --name sra-tools --channel anaconda pigz
 ```
 
-#### Start an interactive job on MSI
+### Start an interactive job on MSI
 
 WE need to request
 
-#### Create an output directory
+### Create an output directory
 
 We need a directory where all of our downloaded files will be put. You can name this directory anything you want, but try to use something descriptive. I'll call mine `fastq_raw`.
 
@@ -80,16 +88,22 @@ module load parallel
 Now we can start downloading! 
 
 ```
-cat SRRs_to_download.txt | parallel -j $PBS_NP "prefetch {} --verify yes --output-directory ~/infantis_data/fastq_raw" |& tee --ignore-interrupts prefetch.out
+cat SRRs_to_download.txt | parallel -j $PBS_NP "prefetch {} --verify yes --output-directory ~/project/fastq_raw" |& tee --ignore-interrupts prefetch.out
 ```
 
 Let's break down the command:
 
-`cat SRRs_to_download.txt` 
+`cat SRRs_to_download.txt |` 
+read the file by dumping its contents directly into the terminal, use the cat (‘concatenate’) command
+pipes the contents to the command after the pipe
 
-`parallel -j $PBS_NP`
+`parallel -j $SLURM`
+`-j`: Run *n* jobs in parallel
+* 
+`"prefetch {} --verify yes --output-directory ~/project/fastq_raw"`
+* `--verify`: Verify download was successful
+* `--output-directory`: path to output directory
 
-`"prefetch {} --verify yes --output-directory ~/infantis_data/fastq_raw"`
 
 `|& tee --ignore-interrupts prefetch.out`
 
@@ -98,29 +112,40 @@ Let's break down the command:
 
 #### Identify any download errors
 
+Sometimes there is an issue with the download of one or more of your SRR IDs. For example, the FASTQ files may not be publically available or aren't found in the SRA database. There may also be a poor or lost connection to the NCBI server. We need to check whether there were any download errors. If we do identify samples that weren't downloaded properly, we can always try downloading them again either via command line of by going directly to the SRA website and clicking the download link.
+
+First we'll create a text file list of all the SRR IDs that *were* downloaded successfully.
+
 ```
-# identify prefetch errors
-# list of successful downloads
-grep ": 1) .* was downloaded successfully" prefetch.out | sed -E "s/.*'(.*)'.*/\1/" > prefetch_success_SRRs.txt
-
-# list of failed downloads
-grep -v -f prefetch_success_SRRs.txt ~/infantis_data/metadata/SRRs_to_download.txt > prefetch_fails_SRRs.txt
-
-# create files of specific prefetch errors
-grep -f prefetch_fails_SRRs.txt prefetch.out > prefetch_errors.txt
-
-# access denied error
-grep "Access denied" prefetch_errors.txt > prefetch_errors_accessDenied.txt
-
-# no data error
-grep "no data ( 404 )" prefetch_errors.txt > prefetch_errors_noData.txt
-
-# all other errors
-grep -v -f <(cat prefetch_errors_accessDenied.txt prefetch_errors_noData.txt) prefetch_errors.txt > prefetch_errors_other.txt
+grep ": 1) .* was downloaded successfully" prefetch.out | sed -E "s/.*'(.*)'.*/\1/" > prefetch_SRRs_success.txt
 ```
 
+Now we'll create a list of SRR IDs that were *not* downloaded successfully byt comparing our `prefetch_SRRs_success.txt` list to the original `SRRs_to_download.txt` list.
 
-#### Convert SRA files to compressed FASTQ files
+```
+grep -v -f prefetch_SRRs_success.txt SRRs_to_download.txt > prefetch_SRRs_fail.txt
+```
+
+Now let's take a look at the file.
+
+```
+cat prefetch_SRRs_fail.txt
+```
+
+
+
+
+
+Example: 
+```
+prefetch SRR6491317 --verify yes --output-directory ~/project/fastq_raw
+```
+The file downloaded successfully if it says "'SRR6491317' was downloaded successfully"
+
+
+
+
+### Convert SRA files to compressed FASTQ files
 
 ```
 for srr in $(cat prefetch_success_SRRs.txt); do
