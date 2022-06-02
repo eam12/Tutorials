@@ -4,43 +4,168 @@ Created June 2, 2022
 
 Created by Elizabeth Miller (millere@umn.edu) 
 
-### Log into MSI
+#### Log into MSI
 
 How this is done will depend on whether you're using Terminal or PuTTY.
 
-### Download all required software
+#### Download and install all required software
 
-We'll use the [sra-tools](https://ncbi.github.io/sra-tools/) (version 2.10.8) commands `prefetch` (with [GNU Parallel](https://www.gnu.org/software/parallel/) to parallelize this step) to download the SRA files and `fasterq-dump` to convert the SRA files to FASTQ files. We'll then use [pigz](https://zlib.net/pigz/) (version 2.4) to compress the resulting FASTQ files. We'll use `Bioconda`() to install all except for GNU Parallel which is available as an MSI module.   
+We'll use the [sra-tools](https://ncbi.github.com/sra-tools/) (version 2.11.0) commands `prefetch` (with [GNU Parallel](https://www.gnu.org/software/parallel/) to parallelize this step) to download the SRA files and `fasterq-dump` to convert the SRA files to FASTQ files. We'll then use [pigz](https://zlib.net/pigz/) (version 2.6) to compress the resulting FASTQ files. We'll use [Conda](https://docs.conda.io/en/latest/) to install all except for GNU Parallel which is available as an MSI module. 
+
+Note: You can run through a quick tutorial about Conda [here](https://github.com/eam12/Tutorials/blob/ca8a9a3a8500b50034bebfac257b329004dcb53f/Intro_to_Conda/Intro_to_Conda.md).
 
 ```
 # load python3 module
 module load python3
 
-# create sra-tools environment and install sra-tools v.2.10.8
-# https://anaconda.org/bioconda/sra-tools
+# create sra-tools environment and install sra-tools v.2.11.0
 conda create --name sra-tools --channel bioconda sra-tools
 
-# add pigz v.2.4
-# https://anaconda.org/anaconda/pigz
+# add pigz v.2.6 to your environment
 conda install --name sra-tools --channel anaconda pigz
 ```
 
+#### Start an interactive job on MSI
 
+WE need to request
 
-2) Go to your *Salmonella* metadata directory and create text file of all NCBI Run IDs to download FASTQ files for. If you already have a bunch downloaded from the *first* time you did these analyses (SORRY), you can make a list of the samples that still need to be downloaded. Just make sure you're not including the partially downloaded samples on this list!
+#### Create an output directory
+
+We need a directory where all of our downloaded files will be put. You can name this directory anything you want, but try to use something descriptive. I'll call mine `fastq_raw`.
 
 ```
-cd sinfantis_data/metadata
+mkdir -p ~/project/fastq_raw
+```
+
+Now go to that newly created directory.
+
+```
+cd ~/project/fastq_raw
+```
+
+#### Create a text file of your SRR IDs
+
+Create a text file listing all of the SRR IDs you want to download from the SRA, one ID per line. There are a number of ways to make text files, but we'll use the function `nano`. Again, you can call this file anything you want, but try to name it something descriptive.
+
+```
 nano SRRs_to_download.txt
 ```
 
+Copy and paste your SRR IDs into the file. Here's an example:
+
 <img src=https://github.com/JohnsonSingerLab/Salmonella-Surveillance/blob/master/images/SRRs_to_download.png  width="500">
 
-3) Check that the number of samples in `SRRs_to_download.txt` is the same number as in your final sample metadata `YOURSEROVAR_all_seq_samples_USA.txt` file (minus the MCROC samples) or the number you know still need to be downloaded. 
+Now exit (and save) the newly created text file using the `control` + `X` keys.
+
+Lastly, check that the number of SRR IDs in `SRRs_to_download.txt` is correct.
 
 ```
 cat SRRs_to_download.txt | wc -l
 ```
+
+#### Load all required software
+
+We're almost ready to start downloading, but first we need to load all of the required software. This includes the Conda environment `sra-tools` we created earlier and the MSI module `parallel`.
+
+```
+# load sra-tools conda environment
+module load python3 && source activate sra-tools
+
+# load parallel module
+module load parallel
+```
+
+#### Download SRA files
+
+Now we can start downloading! 
+
+```
+cat SRRs_to_download.txt | parallel -j $PBS_NP "prefetch {} --verify yes --output-directory ~/infantis_data/fastq_raw" |& tee --ignore-interrupts prefetch.out
+```
+
+Let's break down the command:
+
+`cat SRRs_to_download.txt` 
+
+`parallel -j $PBS_NP`
+
+`"prefetch {} --verify yes --output-directory ~/infantis_data/fastq_raw"`
+
+`|& tee --ignore-interrupts prefetch.out`
+
+
+
+
+#### Identify any download errors
+
+```
+# identify prefetch errors
+# list of successful downloads
+grep ": 1) .* was downloaded successfully" prefetch.out | sed -E "s/.*'(.*)'.*/\1/" > prefetch_success_SRRs.txt
+
+# list of failed downloads
+grep -v -f prefetch_success_SRRs.txt ~/infantis_data/metadata/SRRs_to_download.txt > prefetch_fails_SRRs.txt
+
+# create files of specific prefetch errors
+grep -f prefetch_fails_SRRs.txt prefetch.out > prefetch_errors.txt
+
+# access denied error
+grep "Access denied" prefetch_errors.txt > prefetch_errors_accessDenied.txt
+
+# no data error
+grep "no data ( 404 )" prefetch_errors.txt > prefetch_errors_noData.txt
+
+# all other errors
+grep -v -f <(cat prefetch_errors_accessDenied.txt prefetch_errors_noData.txt) prefetch_errors.txt > prefetch_errors_other.txt
+```
+
+
+#### Convert SRA files to compressed FASTQ files
+
+```
+for srr in $(cat prefetch_success_SRRs.txt); do
+echo "Starting ${srr}..." | tee --ignore-interrupts --append fastqdump.out
+fasterq-dump $srr --split-files --skip-technical --threads $PBS_NP --outdir ~/infantis_data/fastq_raw |& tee --ignore-interrupts --append fastqdump.out
+# gzip file
+pigz ${srr}*.fastq
+done
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
