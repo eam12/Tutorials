@@ -71,8 +71,7 @@ On Windows computers, there is a pre-installed command-line interface, but unfor
 ### The command line prompt
 
 Once you open your command line, you should see a white or black window pop up with some text at the top:
-
-<img src=https://github.com/JohnsonSingerLab/Tutorials/blob/master/Intro_to_Command_Line/images/command_line_window.png  width="600">
+<img src=https://github.com/eam12/Tutorials/tree/main/images/command_line_window.png  width="600">
 
 This is where you will type your commands. 
 
