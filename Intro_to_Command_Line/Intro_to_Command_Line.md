@@ -71,7 +71,7 @@ On Windows computers, there is a pre-installed command-line interface, but unfor
 ### The command line prompt
 
 Once you open your command line, you should see a white or black window pop up with some text at the top:
-<img src=https://github.com/eam12/Tutorials/tree/main/images/command_line_window.png  width="600">
+<img src=https://github.com/eam12/Tutorials/blob/3cf41406d24081c5f64bb9509cb45da6b0712722/images/command_line_window.png  width="600">
 
 This is where you will type your commands. 
 
@@ -111,7 +111,7 @@ Files and folders are stored on computers using a folder or *directory* structur
 
 The easiest way to visualize the directory structure is to think of it as a tree. If you listed the contents of the root folder (the root of the tree), you would find a number of other folders (the main branches). These folders might contain more folders (smaller branches) and/or files (leaves). This is illustrated below:
 
-<img src=https://github.com/JohnsonSingerLab/Tutorials/blob/master/Intro_to_Command_Line/images/directory_structure.png  width="300">
+<img src=https://github.com/eam12/Tutorials/blob/3cf41406d24081c5f64bb9509cb45da6b0712722/images/directory_structure.png  width="300">
 
 Specifying a file or folder is simply a matter of providing enough information to uniquely identify it. Here, the folder called `Data` can be uniquely identified by starting from the `Root Directory`, going into `Users`, then `YOURNAME`, then `Desktop`, to find `Data`. This process can be thought of as specifying the *path* to the file or folder of interest. In fact, this is the exact term used in Unix jargon, essentially meaning 'an unambiguous file name'. Thus, specifying a file name boils down to providing a unique, unambiguous path to the file. Think of it like a map you’re providing to the computer to tell it where a specific file or directory is.
 
@@ -375,21 +375,21 @@ $ nano test.txt
 
 You should now be on the default `nano` screen:
 
-<img src=https://github.com/JohnsonSingerLab/Tutorials/blob/master/Intro_to_Command_Line/images/nano_main.png width="600">
+<img src=https://github.com/eam12/Tutorials/blob/3cf41406d24081c5f64bb9509cb45da6b0712722/images/nano_main.png width="600">
 
 At the top, you’ll see the name of the program and version number, the name of the file you’re editing, and whether the file has been modified since it was last saved. Next, you’ll see the contents of your document, a body of text. In our case, this is blank since our file is empty. The two rows at the bottom are what make this program very user-friendly: the shortcut lines.
 
 Let’s add some text to the file so we have something to play with later. Just type or copy and paste some text into the terminal window:
 
-<img src=https://github.com/JohnsonSingerLab/Tutorials/blob/master/Intro_to_Command_Line/images/nano_text.png width="600">
+<img src=https://github.com/eam12/Tutorials/blob/3cf41406d24081c5f64bb9509cb45da6b0712722/images/nano_text.png width="600">
 
 Now let’s use one of `nano`’s handy shortcuts to save the file and exit out of the text-editor. Type `control`+`X`. Note that `nano` does not use the `shift` key in shortcuts. All shortcuts use lowercase letters and unmodified number keys, so `control`+`X` is NOT `control`+`shift`+`X`.
 
-<img src=https://github.com/JohnsonSingerLab/Tutorials/blob/master/Intro_to_Command_Line/images/nano_save.png width="600">
+<img src=https://github.com/eam12/Tutorials/blob/3cf41406d24081c5f64bb9509cb45da6b0712722/images/nano_save.png width="600">
 
 After typing `control`+`X`, `nano` asks us whether we want to save the changes we’ve made to our file before exiting. We do want to save our edits, so we type `y`:
 
-<img src=https://github.com/JohnsonSingerLab/Tutorials/blob/master/Intro_to_Command_Line/images/nano_filename.png width="600">
+<img src=https://github.com/eam12/Tutorials/blob/3cf41406d24081c5f64bb9509cb45da6b0712722/images/nano_filename.png width="600">
 
 `nano` is now giving us the option to change the name of the file. In this case, we don’t want to so we simply hit `return`. Voila! The `nano` screen closes and we’re back to our standard terminal window. Just to check, let’s make sure the file we just edited is still there:
 
