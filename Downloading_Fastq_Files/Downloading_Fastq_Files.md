@@ -1,6 +1,7 @@
 ## Downloading FASTQ Files from NCBI's Short Read Archive (SRA)
 
-Created June 2, 2022      
+Created June 2, 2022   
+Updated June 6, 2022
 
 Created by Elizabeth Miller (millere@umn.edu) 
 
