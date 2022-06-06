@@ -4,7 +4,7 @@ Created June 2, 2022
 
 Created by Elizabeth Miller (millere@umn.edu) 
 
-Basic steps:
+### Basic steps:
 
 - [Before starting](#Before-starting)
 - [Log into MSI](#Log-into-MSI)
@@ -14,15 +14,9 @@ Basic steps:
 - [Create text file of SRR IDs](#Create-text-file-of-SRR-IDs)
 - [Download FASTQ files](#Download-FASTQ-files)
 - [Identify any errors](#Identify-any-errors)
-
-
-
-- [Create text file of SRR IDs](#Create-text-file-of-SRR IDs)
-
+- [Check your sample sizes](#Check-your-sample-sizes)
 
 <!-- toc -->
-
-
 
 ### Before starting
 
@@ -200,7 +194,7 @@ pigz SRR6491317*.fastq
 # total number of SRRs we wanted
 ls SRRs_to_download.txt | wc -l
 
-# total number of SRRs evntually downloaded
+# total number of SRRs eventually downloaded
 ls *_1.fastq.gz | sed 's/_1.fastq.gz//g' | sort | uniq | wc -l
 
 # total number of FASTQ files
